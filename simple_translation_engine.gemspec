@@ -6,7 +6,7 @@ require 'simple_translation_engine/version'
 Gem::Specification.new do |spec|
   
   spec.name          = "simple_translation_engine"
-  spec.version       = TranslationEngine::VERSION
+  spec.version       = SimpleTranslationEngine::VERSION
   spec.authors       = ["Alex Bromley & Derek Edwards"]
   spec.email         = ["abromley@camsys.com,dedwards@camsys.com"]
   spec.summary       = "Intended to manage translations via at database."
