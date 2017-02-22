@@ -25,7 +25,6 @@ describe HomeController do
     click_link SimpleTranslationEngine.translate_text(:log_in)
     I18n.locale.should be :es
     page.should have_text('Correo electrónico')
-    # page.should have_text(TranslationEngine.translate_text('simple_form.labels.defaults.email'))
   end
 
   it "should switch to another locale correctly when in the non-default locale" do
