@@ -27,7 +27,7 @@ module SimpleTranslationEngine
     return translation.nil? ? 'missing translation #{locale.name}:#{key.name}' : translation.value 
   end
 
-  def reload!
+  def self.reload!
     return true
   end
 
