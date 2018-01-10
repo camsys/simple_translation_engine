@@ -1,7 +1,7 @@
-.col-md-12
+.col-md-12.tippytop
   .row
     .col-md-4
-    .col-md-4 
+    .col-md-4
       %h1.text-center
         Translations
     .col-md-4.text-right
@@ -26,7 +26,7 @@
                 - path = (current_translation && current_translation.value.blank?) ? simple_translation_engine.edit_translation_path(current_translation.id) : simple_translation_engine.new_translation_path(key: translation_key.name, key_locale: locale.name.to_s)
                 = link_to "Add", path
           %td.text-center
-            =button_to 'Delete', simple_translation_engine.translation_key_path(translation_key), {method: :delete, class: "btn btn-danger btn-sm", data: {confirm: "Are you sure?  This action cannot be undone!"}}          
+            =button_to 'Delete', simple_translation_engine.translation_key_path(translation_key), {method: :delete, class: "btn btn-danger btn-sm", data: {confirm: "Are you sure?  This action cannot be undone!"}}
   .row
     -I18n.available_locales.each do |loc|
       =simple_form_for :upload_locale,
@@ -42,3 +42,6 @@
               =f.input "locale", as: :hidden, input_html: {value: loc}
             .panel-footer
               =f.submit "Upload", class: "btn btn-primary"
+
+:javascript
+  $('div.container div.row:nth-of-type(2) div:nth-of-type(3)').width('auto');
