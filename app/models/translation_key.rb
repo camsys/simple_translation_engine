@@ -1,6 +1,8 @@
 class TranslationKey < ActiveRecord::Base
 
   has_many :translations, :dependent => :delete_all
+
+  accepts_nested_attributes_for :translations, :reject_if => lambda { |a| a[:value].blank? }
     
   scope :visible, -> { 
     where(id: visible_include)

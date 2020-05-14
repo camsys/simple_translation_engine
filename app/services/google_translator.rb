@@ -13,6 +13,7 @@ class GoogleTranslator
 
   def initialize(api_key, opts={})
     @url = "#{BASE_URL}?key=#{api_key}"
+    @locales_url = "#{BASE_URL}/languages?key=#{api_key}"
     Rails.logger.info(@url)
     @target_lang = opts[:target] || opts[:target_lang] || opts[:to] || "es"
     @source_lang = opts[:source] || opts[:source_lang] || opts[:from] || "en"
@@ -49,37 +50,57 @@ class GoogleTranslator
     }
     
     # Get the translation from the google API, and re-insert the interpolated variables
-    self.send(params).gsub(/{[^{}]*?}/) { |var| interpolated_vars.shift }
+    response = self.send(params)
+    self.unpack(response).gsub(/{[^{}]*?}/) { |var| interpolated_vars.shift }
+  end
+
+  def locales target=@target_lang, locales_url=@locales_url
+    # Build a google translate API params hash
+    params = {
+        "target": target,
+        "format": "text"
+    }
+
+    # Get the languages from the google API
+    response = self.send(params,@locales_url)
+    if response.code == '200'
+      begin
+        return JSON.parse(response.body)["data"]['languages']
+      rescue JSON::ParserError
+        return []
+      end
+    else
+      return []
+    end
   end
   
  	## Send the Requests
-  def send(params)
-		uri = URI.parse(@url)
-		header = {'Content-Type': 'text/json'}
-		# Create the HTTP objects
-		http = Net::HTTP.new(uri.host, uri.port)
-	  http.use_ssl = true
-	  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		request = Net::HTTP::Post.new(uri.request_uri, header)
-		request.body = params.to_json
-		# Send and unpack the request
-		self.unpack(http.request(request))
+  def send(params,url=@url)
+    uri = URI.parse(url)
+    header = {'Content-Type': 'text/json'}
+    # Create the HTTP objects
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    request = Net::HTTP::Post.new(uri.request_uri, header)
+    request.body = params.to_json
 
+    return http.request(request)
   end #send
-	
-	# Get the Actual Translations
-	def unpack(response)
 
-		if response.code == '200'
-			begin
-				return JSON.parse(response.body)["data"]["translations"].first["translatedText"]  || ""
-			rescue JSON::ParserError
-				return ""
-			end
-		else
-			return ""
-		end
-		
-	end
+  # Get the Actual Translations
+  def unpack(response)
+
+    if response.code == '200'
+      begin
+        return JSON.parse(response.body)["data"]["translations"].first["translatedText"]  || ""
+      rescue JSON::ParserError
+        return ""
+      end
+    else
+      return ""
+    end
+
+  end
 	
 end

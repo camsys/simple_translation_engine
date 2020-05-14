@@ -6,7 +6,7 @@ SimpleTranslationEngine::Engine.routes.draw do
 		end
 	end
 	
-	resources :translation_keys, :only => [:destroy]
+	resources :translation_keys, :only => [:edit,:update, :destroy]
 
 
 end

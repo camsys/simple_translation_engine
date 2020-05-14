@@ -8,25 +8,30 @@
       = link_to simple_translation_engine.new_translation_path do
         Add Key
   .row
-    %table.table
-      %tr
-        %th Key
-        - @locales.each do |locale|
-          %th= locale.name
-        %th.text-center Delete
+    %table.table.datatable
+      %thead.thead-default
+        %tr
+          %th Key
+          - @locales.each do |locale|
+            %th= locale.name
+          %th.text-center
+          %th.text-center
       - @translation_keys.each do |translation_key|
         %tr
           %td= translation_key.name
           - @locales.each do |locale|
             %td
-              - current_translation = translation_key.translation(locale)
-              - if current_translation and not current_translation.value.blank?
-                = link_to current_translation.value.truncate(50), simple_translation_engine.edit_translation_path(current_translation.id)
+              - current_translation = @translations[locale.id][translation_key.name]
+              - if current_translation and not current_translation[1].blank?
+                = link_to current_translation[1].truncate(50), simple_translation_engine.edit_translation_path(current_translation[0])
               - else
-                - path = (current_translation && current_translation.value.blank?) ? simple_translation_engine.edit_translation_path(current_translation.id) : simple_translation_engine.new_translation_path(key: translation_key.name, key_locale: locale.name.to_s)
+                - path = (current_translation && current_translation[1].blank?) ? simple_translation_engine.edit_translation_path(current_translation[0]) : simple_translation_engine.new_translation_path(key: translation_key.name, key_locale: locale.name.to_s)
                 = link_to "Add", path
           %td.text-center
-            =button_to 'Delete', simple_translation_engine.translation_key_path(translation_key), {method: :delete, class: "btn btn-danger btn-sm", data: {confirm: "Are you sure?  This action cannot be undone!"}}
+            = link_to 'Auto Translate', simple_translation_engine.edit_translation_key_path(translation_key), {class: "btn btn-success btn-sm"}
+          %td.text-center
+            = link_to simple_translation_engine.translation_key_path(translation_key), {method: :delete, class: "btn btn-danger btn-sm", data: {confirm: "Are you sure?  This action cannot be undone!"}} do
+              Delete
   .row
     -I18n.available_locales.each do |loc|
       =simple_form_for :upload_locale,
@@ -44,4 +49,14 @@
               =f.submit "Upload", class: "btn btn-primary"
 
 :javascript
-  $('div.container div.row:nth-of-type(2) div:nth-of-type(3)').width('auto');
+
+  $(document).ready(function() {
+
+    $('.datatable').DataTable({
+      "columnDefs": [ {
+        "targets": [-1,-2],
+        "orderable": false
+      } ]
+    });
+
+  });

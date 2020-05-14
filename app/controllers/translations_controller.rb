@@ -3,6 +3,11 @@ class TranslationsController < ApplicationController
     def index
         @locales = Locale.where(name: I18n.available_locales.sort)
         @translation_keys = TranslationKey.visible.order(:name)
+        @translations = {}
+
+        @locales.each do |locale|
+          @translations[locale.id] = Translation.joins(:translation_key).where(locale: locale).order('translation_keys.name').pluck('translation_keys.name', 'translations.id','value').each_with_object({}) { |(f,l,j),h|  h.update(f=>[l,j]) }
+        end
     end
 
     def new

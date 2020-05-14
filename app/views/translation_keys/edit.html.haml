@@ -1,0 +1,41 @@
+%h1.text-center
+  Edit Translation Key
+
+.row
+  .col-md-1
+  .col-md-10
+    .panel.panel-primary
+      .panel-heading
+        %h4
+          =@translation_key.name
+      .panel-body
+        #translation_key_form
+          .row
+            .col-sm-12
+              = simple_form_for @translation_key, url: simple_translation_engine.translation_key_path, html: { class: 'form-horizontal' }, wrapper: :horizontal_form do |t|
+
+                .row
+                  .col-sm-2
+                    %h4 Language
+                  .col-sm-5
+                    %h4 Previous Value
+                  .col-sm-5
+                    %h4 New Value
+                = t.simple_fields_for :translations do |tr|
+                  .row
+                    .col-sm-2
+                      = tr.object.locale.name
+                      = tr.input :locale_id, as: :hidden, :input_html => { :value => tr.object.locale_id }
+                    .col-sm-5= tr.object.value
+                    - unless tr.object.locale.name == I18n.default_locale
+                      .col-sm-5= tr.input :value, label: false, input_html: {rows: 10, value: @google_translations[tr.object.locale_id]}
+
+      .panel-footer.panel-primary
+        %center
+          = button_tag id:'save_translation', type: 'submit', class: "btn action-button btn-primary" do
+            = "Save"
+
+:javascript
+  $('#save_translation').on('click', function(){
+    $('#translation_key_form form').submit();
+  });
