@@ -92,6 +92,51 @@ class TranslationsController < ApplicationController
       end
     end
 
+    def edit_locale
+      @locale = Locale.find_by(name: params[:lang] || params[:locale])
+
+      google_api_key = ENV['GOOGLE_API_KEY']
+
+      if google_api_key
+        translator = GoogleTranslator.new(google_api_key,target: params[:lang] || params[:locale])
+
+        languages = translator.locales.map{|h| h.values}.to_h
+
+        @locales = Locale.where(name: I18n.available_locales.sort).pluck(:name).map{|language_code| [languages[language_code], language_code]}
+      else
+        @locales = []
+      end
+    end
+
+    def update_locale
+      locale = Locale.find_by(name: update_locale_params[:locale])
+
+      if locale
+        google_api_key = ENV['GOOGLE_API_KEY']
+
+        source_locale = Locale.of(I18n.default_locale)
+        translator = (google_api_key ? GoogleTranslator.new(google_api_key) : DummyTranslator.new)
+                         .from(I18n.default_locale)
+                         .to(locale.name)
+
+        source_translations = Translation.where(locale: source_locale)
+        unless update_locale_params[:force_update].to_i == 1
+          translations = Translation.where(locale: locale)
+          source_translations = source_translations.where(translation_key_id: translations.where(value: [nil, '']).select(:translation_key_id)).or(source_translations.where.not(translation_key_id: translations.select(:translation_key_id)))
+        end
+
+        source_translations.each do |source_translation|
+          target_translation_val = translator.translate(source_translation.value)
+          target_translation = Translation.find_or_create_by(translation_key: source_translation.translation_key, locale: locale)
+          target_translation.update(value: target_translation_val)
+        end
+
+        redirect_to simple_translation_engine.translations_path
+      else
+        render 'edit'
+      end
+    end
+
     private
 
     def trans_params
@@ -100,6 +145,10 @@ class TranslationsController < ApplicationController
     
     def upload_locale_params
       params.require(:upload_locale).permit(:locale, :file)
+    end
+
+    def update_locale_params
+      params.require(:update_locale).permit(:locale, :force_update)
     end
 
 end

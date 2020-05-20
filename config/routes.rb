@@ -2,6 +2,8 @@ SimpleTranslationEngine::Engine.routes.draw do
 
 	resources :translations do
 		collection do
+      get 'edit_locale'
+      post 'update_locale'
 			post 'upload_locale'
 		end
 	end

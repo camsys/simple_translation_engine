@@ -1,0 +1,45 @@
+%h1.text-center
+  Edit Translation
+
+#edit_locale_form.row
+  .col-md-2
+  .col-md-8
+    .panel.panel-primary
+      .panel-heading
+        %h4 Translate all Keys for a Locale
+      .panel-body
+        #translations_form
+          .row
+            .col-sm-12
+              = simple_form_for :update_locale, url: simple_translation_engine.update_locale_translations_path, html: { class: 'form-horizontal' }, wrapper: :horizontal_form do |t|
+                = t.input :locale, collection: @locales.select{|x| x[1] != @locale.name}
+
+                = t.input :force_update, as: :radio_buttons, collection: [['All Values <span class="badge badge-danger">WARNING. This will overwrite any existing translations.</span>'.html_safe, 1], ['Blank Values Only',0]], checked: 0, label: 'Update'
+
+      .panel-footer.panel-primary
+        %center 
+          = button_tag id:'save_translation', type: 'submit', class: "btn action-button btn-primary" do
+            = "Save"
+
+#locale-loading.fade.in{style: 'display:none;'}
+  %h3 Updating...
+  .sk-circle
+    .sk-circle1.sk-child
+    .sk-circle2.sk-child
+    .sk-circle3.sk-child
+    .sk-circle4.sk-child
+    .sk-circle5.sk-child
+    .sk-circle6.sk-child
+    .sk-circle7.sk-child
+    .sk-circle8.sk-child
+    .sk-circle9.sk-child
+    .sk-circle10.sk-child
+    .sk-circle11.sk-child
+    .sk-circle12.sk-child
+
+:javascript
+  $('#save_translation').on('click', function(){
+    $('#translations_form form').submit();
+    $('#edit_locale_form').hide();
+    $('#locale-loading').show();
+  });

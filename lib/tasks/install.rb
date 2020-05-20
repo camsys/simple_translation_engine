@@ -25,7 +25,6 @@ namespace :simple_translation_engine do
     if !ActiveRecord::Base.connection.table_exists? 'locales'
       connection.create_table :locales do |t|
         t.string :name
-        t.string :label
         t.timestamps
       end
     end
